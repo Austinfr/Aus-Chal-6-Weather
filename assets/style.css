@@ -1,0 +1,8 @@
+#dashboard{
+    display: flex;
+    flex-flow: row wrap;
+}
+#citySearch{
+    display: flex;
+    flex-direction:column;
+}
