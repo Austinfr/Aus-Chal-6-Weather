@@ -1,8 +1,12 @@
 #dashboard{
     display: flex;
     flex-flow: row wrap;
+    justify-content: space-between;
 }
 #citySearch{
     display: flex;
     flex-direction:column;
+}
+.col-12{
+    flex: 0 0 100%;
 }
