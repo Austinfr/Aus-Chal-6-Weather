@@ -22,6 +22,17 @@ header{
     flex-direction:column;
     white-space: pre-line;
     overflow: hidden;
+    font-size: 125%;
+}
+
+#citySearch > input{
+    border: 2px black solid;
+    border-radius: 12px;
+    padding: 2%;
+}
+
+#citySearch > button{
+    margin-top: 3%;
 }
 /*Styling for the weather display elements*/
 #forecastDisplay{
