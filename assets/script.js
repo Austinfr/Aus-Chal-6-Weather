@@ -1003,6 +1003,9 @@ var cities = [
     "Panama City"
 ]
 
+var todaysForecast = document.getElementById("currentWeather");
+var fiveDayForecast = document.getElementById("fiveDayForecast");
+
 function findLocation(location){
     var geoReq = "http://api.openweathermap.org/geo/1.0/direct?q=" + location + "&appid=9c26d768ead86b39036caf98fb0abbfa";
 
@@ -1017,46 +1020,6 @@ function findLocation(location){
     });
 
 }
-// This is an example JSON object in the array of weather predictions returned for seattle for december 18th
-// {
-//     "dt": 1671397200,
-//     "main": {
-//         "temp": 277.81,
-//         "feels_like": 275.99,
-//         "temp_min": 275.62,
-//         "temp_max": 277.81,
-//         "pressure": 1012,
-//         "sea_level": 1012,
-//         "grnd_level": 1013,
-//         "humidity": 81,
-//         "temp_kf": 2.19
-//     },
-//     "weather": [
-//         {
-//             "id": 500,
-//             "main": "Rain",
-//             "description": "light rain",
-//             "icon": "10d"
-//         }
-//     ],
-//     "clouds": {
-//         "all": 75
-//     },
-//     "wind": {
-//         "speed": 2.13,
-//         "deg": 266,
-//         "gust": 7.51
-//     },
-//     "visibility": 8589,
-//     "pop": 0.91,
-//     "rain": {
-//         "3h": 0.15
-//     },
-//     "sys": {
-//         "pod": "d"
-//     },
-//     "dt_txt": "2022-12-18 21:00:00"
-// }
 
 /*
     I need to get the date, weather, temp, wind & humidity
@@ -1088,8 +1051,53 @@ function getForecast(lat, lon){
     });
 }
 
+//adds an autocomplete to the city search
 $('#city').autocomplete({
     //if the minLength isn't here the list goes longer than the webpage
     minLength: 3,
     source: cities
 });
+
+function mainWeatherInput(city, date, temp, wind, humi, weatherDescription){
+    let testH2 = document.createElement("h2");
+    testH2.innerHTML = city + " (" + date + ") " + chooseEmoji(weatherDescription);
+    todaysForecast.append(testH2);
+
+    for(let pEl of formatDetails(temp, wind, humi)){
+        todaysForecast.append(pEl);
+    }
+}
+
+function chooseEmoji(weatherCondition){
+    //I don't really know what words they'll use to describe weather so I went with all I could think of
+    switch(weatherCondition){
+        case "rain":
+            return "🌧️";
+        case "sunny":
+        case "sun":
+            return "☀️";
+        case "cloudy":
+            return "⛅";
+        case "light rain":
+            return "🌦️";
+        case "light snow":
+        case "snow":
+            return "🌨️";
+        default:
+            return "";
+    }
+}
+
+function formatDetails(temp, wind, humi){
+    let tempSection = document.createElement("p");
+    let windSection = document.createElement("p");
+    let humiSection = document.createElement("p");
+    
+    tempSection.innerHTML = "Temp: " + temp + " \u00b0F";
+    windSection.innerHTML = "Wind: " + wind + " MPH";
+    humiSection.innerHTML = "Humidity: " + humi + " %";
+
+    return [tempSection, windSection, humiSection];
+}
+
+// mainWeatherInput("Atlanta","9/13/2022","76.62","8.43","44");
