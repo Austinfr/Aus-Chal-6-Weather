@@ -40,6 +40,7 @@ header{
 }
 .five-day{
     background-color: var(--navy-blue);
+    color: white;
 }
 
 .col-12{

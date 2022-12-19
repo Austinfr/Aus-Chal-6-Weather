@@ -1005,6 +1005,8 @@ var cities = [
 
 var todaysForecast = document.getElementById("currentWeather");
 var fiveDayForecast = document.getElementById("fiveDayForecast");
+var cityInput = document.getElementById("city");
+var searchButton = document.getElementById("searchBtn");
 
 function findLocation(location){
     var geoReq = "http://api.openweathermap.org/geo/1.0/direct?q=" + location + "&appid=9c26d768ead86b39036caf98fb0abbfa";
@@ -1058,36 +1060,6 @@ $('#city').autocomplete({
     source: cities
 });
 
-function mainWeatherInput(city, date, temp, wind, humi, weatherDescription){
-    let testH2 = document.createElement("h2");
-    testH2.innerHTML = city + " (" + date + ") " + chooseEmoji(weatherDescription);
-    todaysForecast.append(testH2);
-
-    for(let pEl of formatDetails(temp, wind, humi)){
-        todaysForecast.append(pEl);
-    }
-}
-
-function chooseEmoji(weatherCondition){
-    //I don't really know what words they'll use to describe weather so I went with all I could think of
-    switch(weatherCondition){
-        case "rain":
-            return "🌧️";
-        case "sunny":
-        case "sun":
-            return "☀️";
-        case "cloudy":
-            return "⛅";
-        case "light rain":
-            return "🌦️";
-        case "light snow":
-        case "snow":
-            return "🌨️";
-        default:
-            return "";
-    }
-}
-
 function formatDetails(temp, wind, humi){
     let tempSection = document.createElement("p");
     let windSection = document.createElement("p");
@@ -1100,4 +1072,57 @@ function formatDetails(temp, wind, humi){
     return [tempSection, windSection, humiSection];
 }
 
-// mainWeatherInput("Atlanta","9/13/2022","76.62","8.43","44");
+function chooseEmoji(weatherCondition){
+    //I don't really know what words they'll use to describe weather so I went with all I could think of
+    //All of these were found on https://emojipedia.org/
+    switch(weatherCondition){
+        case "rain":
+            return "🌧️";
+        case "lightning":
+        case "heavy rain":
+            return "⛈️";
+        case "sunny":
+        case "sun":
+            return "☀️";
+        case "light sun":
+        case "light clouds":
+            return "⛅";
+        case "light rain":
+            return "🌦️";
+        case "clouds":
+        case "cloudy":
+            return "☁️";
+        case "light snow":
+        case "snow":
+            return "🌨️";
+        default:
+            return "";
+    }
+}
+
+function mainWeatherInput(city, date, temp, wind, humi, weatherDescription){
+    let cityH2 = document.createElement("h2");
+    cityH2.innerHTML = city + " (" + date + ") " + chooseEmoji(weatherDescription);
+    todaysForecast.append(cityH2);
+
+    for(let detail of formatDetails(temp, wind, humi)){
+        todaysForecast.append(detail);
+    }
+}
+
+function weatherForecastInput(forecastCard, date, temp, wind, humi, weatherDescription){
+    let dateH2 = document.createElement("h2");
+    dateH2.innerHTML = date;
+    let emoji = document.createElement("p");
+    emoji.innerHTML = chooseEmoji(weatherDescription);
+
+    forecastCard.append(dateH2);
+    forecastCard.append(emoji);
+
+    for(let detail of formatDetails(temp, wind, humi)){
+        forecastCard.append(detail);
+    }
+}
+
+
+// mainWeatherInput("Atlanta","9/13/2022","76.62","8.43","44", "sun");
