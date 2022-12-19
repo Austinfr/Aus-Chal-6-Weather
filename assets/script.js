@@ -1,5 +1,7 @@
 //I copied a list of the 1000 us largest cities in the united states from this repo https://gist.github.com/Miserlou/11500b2345d3fe850c92
 //Thank you for whoever made the list
+//The real code starts on line 1008
+
 var cities = [
     "New York",
     "Los Angeles",
@@ -1005,16 +1007,23 @@ var cities = [
 
 var todaysForecast = document.getElementById("currentWeather");
 var fiveDayForecast = document.getElementById("fiveDayForecast");
+var citySearchSection = document.getElementById("citySearch");
 var cityInput = document.getElementById("city");
 var searchButton = document.getElementById("searchBtn");
+var citySearched = "";
+
+var previousCities = [];
+var tempWeatherData = [];
 
 function findLocation(location){
     var geoReq = "http://api.openweathermap.org/geo/1.0/direct?q=" + location + "&appid=9c26d768ead86b39036caf98fb0abbfa";
 
     fetch(geoReq).then(function(response){
         if(response.ok){
+            citySearched = location;
             return response.json();
         }
+        alert("Please enter a proper city");
     }).then(function(data){
         let lat = data[0].lat;
         let lon = data[0].lon;
@@ -1038,6 +1047,126 @@ function findLocation(location){
     wind = data.list[index].wind.speed;
     humidity = data.list[index].main.humidity;
 */
+function processWeatherData(data){
+    //resets the value for the temporary array to store what the user is currently looking at
+    let contains = false;
+    tempWeatherData = [];
+    //for each element of the 5day/3hour forecast
+    for(let threeHourData of data.list){
+        //gets the data I want from the request
+        let date = new Date(threeHourData.weather[0].dt_txt.replace(" ", "T")).toLocaleDateString();
+        let temp = threeHourData.main.temp;
+        let wind = threeHourData.wind.speed;
+        let humi = threeHourData.main.humidity;
+        let weather = threeHourData.weather[0].description;
+
+        contains = false;
+        for(let stored of tempWeatherData) {
+            //if I already stored it, it will update and average the value hopefully
+            if(stored[0] === date){
+                stored[1] = (stored[1] + temp) / 2;
+                stored[2] = (stored[2] + wind) / 2;
+                stored[3] = (stored[3] + humi) / 2;
+                contains = true;
+            }
+        }
+
+        //if it isn't something I stored before it will add it
+        //This stores in the format of an array for the five days
+        //This visual of data for one city should hopefully help me
+        // [[date1, temp1, wind1, humi1, weather1, city],
+        //  [date2, temp2, wind2, humi2, weather2, city],
+        //  [date3, temp3, wind3, humi3, weather3, city],
+        //  [date4, temp4, wind4, humi4, weather4, city],
+        //  [date5, temp5, wind5, humi5, weather5, city]]
+        if(!contains){
+            tempWeatherData.push([date, temp, wind, humi, weather, citySearched]);
+        }
+    }
+
+    //stores the data so it's much easier to reference later instead of making another call to the api
+    //The temp weather data contains the current day and the 5 day forecast
+    updatePreviousCities(tempWeatherData);
+
+    //then after it's stored it shows up
+    displayData(tempWeatherData);
+}
+
+function displayData(weatherData){
+    let mainWeather = weatherData[0];
+    mainWeatherInput(mainWeather[0], mainWeather[1], mainWeather[2], mainWeather[3], mainWeather[4], mainWeather[5])
+
+    //This is a mouthfull but hopefully loops and adds the weather for the cards
+    let x = 1;
+    for(let forecastCard of fiveDayForecast){
+        weatherForecastInput(forecastCard, weatherData[x][0], weatherData[x][1], weatherData[x][2], weatherData[x][3], weatherData[x][4]);
+        x++;
+    }
+
+}
+
+function updatePreviousCities(dataToStore){
+    //I only want to store 8 entities otherwise it will pop one out
+    if(previousCities.length >= 8){
+        previousCities.pop();
+    }
+
+    //adds the new data unto the start of the array
+    //This becomes an array of arrays of arrays
+    //[weatherdata1, ... , weatherdata8]
+    //with each weatherdata element being shown above as an array of arrays
+    previousCities.unshift(dataToStore);
+
+    //stores it in the local storage
+    //not sure if this is part of the challenge but why not
+    localStorage.setItem("previouslyViewedCities", JSON.stringify(previousCities));
+
+    //this part of the function updates the buttons on the sidebar under the search button
+    updatePreviousButtons();
+}
+
+//when I click on a previouslyViewedCity button
+function returnToPreviouslyViewedCity(event){
+    event.preventDefault();
+    //checks the name to see where it's at
+    let cityName = event.target.innerHTML;
+    for(let weatherData of previousCities){
+        //when it's found it displays
+        if(weatherData[0][5] === cityName){
+            displayData(weatherData);
+            break;
+        }
+    }
+
+}
+
+function renderPreviousButtons(){
+    for(let cityData of previousCities){
+        //create the button
+        let previousButton = document.createElement("button");
+        previousButton.classList.add("btn", "btn-secondary", "previous");
+        previousButton.setAttribute("type", "button");
+        previousButton.innerHTML = cityData[0][5];
+
+        //add and event listener to display the data on click
+        previousButton.addEventListener("click", returnToPreviouslyViewedCity);
+
+        //append the button
+        citySearchSection.append(previousButton);
+    }
+}
+
+function updatePreviousButtons(){
+    //checks localstorage if there's some stored data
+    let storedCities = JSON.parse(localStorage.getItem("previouslyViewedCities"));
+
+    if(storedCities !== null){
+        previousCities = storedCities;
+    }
+
+    renderPreviousButtons();
+}
+
 function getForecast(lat, lon){
     var forecastReq = "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + lon + "&units=imperial&appid=9c26d768ead86b39036caf98fb0abbfa";
 
@@ -1046,10 +1175,7 @@ function getForecast(lat, lon){
             return response.json();
         }
     }).then(function(data){
-        console.log(data.list.length);
-        for(let x = 0; x < data.list.length; x++){
-            console.log(data.list[x]);
-        }
+        processWeatherData(data);
     });
 }
 
@@ -1060,6 +1186,7 @@ $('#city').autocomplete({
     source: cities
 });
 
+//creates 3 paragraphs of the temp wind and humidity and returns them as an array
 function formatDetails(temp, wind, humi){
     let tempSection = document.createElement("p");
     let windSection = document.createElement("p");
@@ -1100,17 +1227,20 @@ function chooseEmoji(weatherCondition){
     }
 }
 
-function mainWeatherInput(city, date, temp, wind, humi, weatherDescription){
+function mainWeatherInput(date, temp, wind, humi, weatherDescription, city){
+    //formats the main card putting the city name and the date in parenthesis
     let cityH2 = document.createElement("h2");
     cityH2.innerHTML = city + " (" + date + ") " + chooseEmoji(weatherDescription);
     todaysForecast.append(cityH2);
 
+    //runs through each of the formatted data elements and appends them
     for(let detail of formatDetails(temp, wind, humi)){
         todaysForecast.append(detail);
     }
 }
 
 function weatherForecastInput(forecastCard, date, temp, wind, humi, weatherDescription){
+    //formats the little cards putting the emojis on seperate lines from the date
     let dateH2 = document.createElement("h2");
     dateH2.innerHTML = date;
     let emoji = document.createElement("p");
@@ -1119,10 +1249,21 @@ function weatherForecastInput(forecastCard, date, temp, wind, humi, weatherDescr
     forecastCard.append(dateH2);
     forecastCard.append(emoji);
 
+    //runs through each of the formatted data elements and appends them
     for(let detail of formatDetails(temp, wind, humi)){
         forecastCard.append(detail);
     }
 }
 
+function getWeatherInfo(cityName){
+
+}
+
+searchButton.addEventListener("click", function(event){
+    event.preventDefault();
+    if(cityInput.value !== null){
+        getWeatherInfo(cityInput.value);
+    }
+});
 
 // mainWeatherInput("Atlanta","9/13/2022","76.62","8.43","44", "sun");
