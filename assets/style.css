@@ -1,12 +1,47 @@
+:root{
+    --navy-blue: rgba(20,15,78,1);
+    --blue: rgba(9,9,121,1);
+    --light-blue:  rgba(14,125,255,1);
+}
+/*The heading banner*/
+header{
+    padding: 1%;
+    text-align: center;
+    text-indent: 25%;
+    background: linear-gradient(90deg, var(--light-blue) 0%, var(--blue) 90%, var(--navy-blue) 100%);
+    color:white;
+}
+/*All of the dashboard elements*/
 #dashboard{
     display: flex;
     flex-flow: row wrap;
-    justify-content: space-between;
 }
+/*The aside search bar*/
 #citySearch{
     display: flex;
     flex-direction:column;
+    white-space: pre-line;
+    overflow: hidden;
 }
+/*Styling for the weather display elements*/
+#forecastDisplay{
+    padding:10px;
+}
+.main-card{
+    border:1px solid black;
+    min-height: 100px;
+    width: 100%;
+    margin:2%;
+}
+#fiveDayForecast{
+    margin:2%;
+    width: 100%;
+    justify-content: space-between;
+}
+.five-day{
+    background-color: var(--navy-blue);
+}
+
 .col-12{
     flex: 0 0 100%;
 }
