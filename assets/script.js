@@ -1256,7 +1256,12 @@ function weatherForecastInput(forecastCard, date, temp, wind, humi, weatherDescr
 }
 
 function getWeatherInfo(cityName){
-
+    try {
+        findLocation(cityName);
+    } catch (error) {
+        console.log(error);
+        alert("Something went wrong :(");
+    }
 }
 
 searchButton.addEventListener("click", function(event){
