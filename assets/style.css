@@ -49,6 +49,9 @@ header{
     width: 100%;
     justify-content: space-between;
 }
+#fiveDayForecast > h3{
+    padding-left: 0;
+}
 .five-day{
     background-color: var(--navy-blue);
     color: white;
