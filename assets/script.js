@@ -1006,7 +1006,7 @@ var cities = [
 ]
 
 var todaysForecast = document.getElementById("currentWeather");
-var fiveDayForecast = document.getElementById("fiveDayForecast");
+var fiveDayForecast = document.querySelectorAll(".five-day");
 var citySearchSection = document.getElementById("citySearch");
 var cityInput = document.getElementById("city");
 var searchButton = document.getElementById("searchBtn");
@@ -1023,7 +1023,8 @@ function findLocation(location){
             citySearched = location;
             return response.json();
         }
-        alert("Please enter a proper city");
+    }).catch(function(error){
+        console.error('Error: ' + error);
     }).then(function(data){
         let lat = data[0].lat;
         let lon = data[0].lon;
@@ -1054,7 +1055,7 @@ function processWeatherData(data){
     //for each element of the 5day/3hour forecast
     for(let threeHourData of data.list){
         //gets the data I want from the request
-        let date = new Date(threeHourData.weather[0].dt_txt.replace(" ", "T")).toLocaleDateString();
+        let date = new Date(threeHourData.dt_txt.replace(" ", "T")).toLocaleDateString();
         let temp = threeHourData.main.temp;
         let wind = threeHourData.wind.speed;
         let humi = threeHourData.main.humidity;
@@ -1064,9 +1065,9 @@ function processWeatherData(data){
         for(let stored of tempWeatherData) {
             //if I already stored it, it will update and average the value hopefully
             if(stored[0] === date){
-                stored[1] = (stored[1] + temp) / 2;
-                stored[2] = (stored[2] + wind) / 2;
-                stored[3] = (stored[3] + humi) / 2;
+                stored[1] = Math.floor(((stored[1] + temp) / 2) * 100) / 100;
+                stored[2] = Math.floor(((stored[2] + wind) / 2) * 100) / 100;
+                stored[3] = Math.floor(((stored[3] + humi) / 2) * 100) / 100;
                 contains = true;
             }
         }
@@ -1111,18 +1112,28 @@ function updatePreviousCities(dataToStore){
         previousCities.pop();
     }
 
-    //adds the new data unto the start of the array
-    //This becomes an array of arrays of arrays
-    //[weatherdata1, ... , weatherdata8]
-    //with each weatherdata element being shown above as an array of arrays
-    previousCities.unshift(dataToStore);
+    let alreadySearched = false;
 
-    //stores it in the local storage
-    //not sure if this is part of the challenge but why not
-    localStorage.setItem("previouslyViewedCities", JSON.stringify(previousCities));
+    for(let cityForecast of previousCities){
+        if(cityForecast[0][5] === dataToStore[0][5]){
+            alreadySearched = true;
+        }
+    }
 
-    //this part of the function updates the buttons on the sidebar under the search button
-    updatePreviousButtons();
+    if(!alreadySearched){
+        //adds the new data unto the start of the array
+        //This becomes an array of arrays of arrays
+        //[weatherdata1, ... , weatherdata8]
+        //with each weatherdata element being shown above as an array of arrays
+        previousCities.unshift(dataToStore);
+
+        //stores it in the local storage
+        //not sure if this is part of the challenge but why not
+        localStorage.setItem("previouslyViewedCities", JSON.stringify(previousCities));
+
+        //this part of the function updates the buttons on the sidebar under the search button
+        updatePreviousButtons();
+    }
 }
 
 //when I click on a previouslyViewedCity button
@@ -1140,7 +1151,18 @@ function returnToPreviouslyViewedCity(event){
 
 }
 
+function removePreviouseButtons(){
+    for(let citySearchChildElement of citySearchSection.children){
+        console.log(citySearchChildElement.classList);
+        if(citySearchChildElement.classList.contains("previous")){
+            citySearchSection.removeChild(citySearchChildElement);
+        }
+    }
+}
+
 function renderPreviousButtons(){
+    removePreviouseButtons();
+
     for(let cityData of previousCities){
         //create the button
         let previousButton = document.createElement("button");
@@ -1228,6 +1250,7 @@ function chooseEmoji(weatherCondition){
 }
 
 function mainWeatherInput(date, temp, wind, humi, weatherDescription, city){
+    todaysForecast.innerHTML = "";
     //formats the main card putting the city name and the date in parenthesis
     let cityH2 = document.createElement("h2");
     cityH2.innerHTML = city + " (" + date + ") " + chooseEmoji(weatherDescription);
@@ -1240,6 +1263,7 @@ function mainWeatherInput(date, temp, wind, humi, weatherDescription, city){
 }
 
 function weatherForecastInput(forecastCard, date, temp, wind, humi, weatherDescription){
+    forecastCard.innerHTML = "";
     //formats the little cards putting the emojis on seperate lines from the date
     let dateH2 = document.createElement("h2");
     dateH2.innerHTML = date;

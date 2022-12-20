@@ -56,6 +56,7 @@ header{
 }
 .five-day{
     background-color: var(--navy-blue);
+    white-space: normal;
     color: white;
 }
 
