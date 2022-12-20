@@ -1152,11 +1152,8 @@ function returnToPreviouslyViewedCity(event){
 }
 
 function removePreviouseButtons(){
-    for(let citySearchChildElement of citySearchSection.children){
-        console.log(citySearchChildElement.classList);
-        if(citySearchChildElement.classList.contains("previous")){
-            citySearchSection.removeChild(citySearchChildElement);
-        }
+    for(let citySearchChildElement of document.querySelectorAll(".previous")){
+        citySearchSection.removeChild(citySearchChildElement);
     }
 }
 
@@ -1224,27 +1221,37 @@ function formatDetails(temp, wind, humi){
 function chooseEmoji(weatherCondition){
     //I don't really know what words they'll use to describe weather so I went with all I could think of
     //All of these were found on https://emojipedia.org/
+    //they don't have very diverse weather emojis tho 
     switch(weatherCondition){
+        case "overcast clouds":
         case "rain":
             return "🌧️";
         case "lightning":
         case "heavy rain":
             return "⛈️";
         case "sunny":
+        case "clear sky":
         case "sun":
             return "☀️";
+        case "scattered clouds":
+        case "broken clouds":
+            return "🌤️";
         case "light sun":
         case "light clouds":
             return "⛅";
         case "light rain":
             return "🌦️";
         case "clouds":
+        case "few clouds":
         case "cloudy":
             return "☁️";
         case "light snow":
         case "snow":
             return "🌨️";
+        case "fog":
+            return "🌫️";
         default:
+            console.log(weatherCondition);
             return "";
     }
 }
@@ -1294,5 +1301,7 @@ searchButton.addEventListener("click", function(event){
         getWeatherInfo(cityInput.value);
     }
 });
+
+updatePreviousButtons();
 
 // mainWeatherInput("Atlanta","9/13/2022","76.62","8.43","44", "sun");
