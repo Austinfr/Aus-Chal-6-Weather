@@ -1260,7 +1260,6 @@ function chooseEmoji(weatherCondition){
         case "fog":
             return "🌫️";
         default:
-            console.log(weatherCondition);
             return "";
     }
 }
