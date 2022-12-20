@@ -1015,11 +1015,15 @@ var citySearched = "";
 var previousCities = [];
 var tempWeatherData = [];
 
+//gets the latitude and longitude of the location to use in the weather api
 function findLocation(location){
     var geoReq = "http://api.openweathermap.org/geo/1.0/direct?q=" + location + "&appid=9c26d768ead86b39036caf98fb0abbfa";
 
     fetch(geoReq).then(function(response){
         if(response.ok){
+            //stores the name in a local variable to be refenced later
+            //capitalizes it first because we live in a society
+            location.trim().charAt(0).toUpperCase();
             citySearched = location;
             return response.json();
         }
@@ -1151,6 +1155,7 @@ function returnToPreviouslyViewedCity(event){
 
 }
 
+//removes all buttons from the city search side bar section in order to show new ones when updated
 function removePreviouseButtons(){
     for(let citySearchChildElement of document.querySelectorAll(".previous")){
         citySearchSection.removeChild(citySearchChildElement);
@@ -1183,12 +1188,15 @@ function updatePreviousButtons(){
         previousCities = storedCities;
     }
 
+    //will render any stored previous searches in the local storage
     renderPreviousButtons();
 }
 
 function getForecast(lat, lon){
+    //creates the request url given by the geolocation api
     var forecastReq = "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + lon + "&units=imperial&appid=9c26d768ead86b39036caf98fb0abbfa";
 
+    //if response.ok is true then we kick things off
     fetch(forecastReq).then(function(response){
         if(response.ok){
             return response.json();
@@ -1211,6 +1219,7 @@ function formatDetails(temp, wind, humi){
     let windSection = document.createElement("p");
     let humiSection = document.createElement("p");
     
+    //formats the section to be the variable type name plus its value plus the value's units
     tempSection.innerHTML = "Temp: " + temp + " \u00b0F";
     windSection.innerHTML = "Wind: " + wind + " MPH";
     humiSection.innerHTML = "Humidity: " + humi + " %";
@@ -1256,6 +1265,7 @@ function chooseEmoji(weatherCondition){
     }
 }
 
+//fills out the main card on the page
 function mainWeatherInput(date, temp, wind, humi, weatherDescription, city){
     todaysForecast.innerHTML = "";
     //formats the main card putting the city name and the date in parenthesis
@@ -1269,6 +1279,7 @@ function mainWeatherInput(date, temp, wind, humi, weatherDescription, city){
     }
 }
 
+//fills out the 5 day forecast cards
 function weatherForecastInput(forecastCard, date, temp, wind, humi, weatherDescription){
     forecastCard.innerHTML = "";
     //formats the little cards putting the emojis on seperate lines from the date
@@ -1287,6 +1298,7 @@ function weatherForecastInput(forecastCard, date, temp, wind, humi, weatherDescr
 }
 
 function getWeatherInfo(cityName){
+    //maybe will help, didn't seem to in my testing
     try {
         findLocation(cityName);
     } catch (error) {
@@ -1295,6 +1307,7 @@ function getWeatherInfo(cityName){
     }
 }
 
+//adds an event listener to the button for a city to search
 searchButton.addEventListener("click", function(event){
     event.preventDefault();
     if(cityInput.value !== null){
@@ -1302,6 +1315,5 @@ searchButton.addEventListener("click", function(event){
     }
 });
 
+//so any previously stored cities in local storage load in
 updatePreviousButtons();
-
-// mainWeatherInput("Atlanta","9/13/2022","76.62","8.43","44", "sun");
