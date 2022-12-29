@@ -1017,7 +1017,7 @@ var tempWeatherData = [];
 
 //gets the latitude and longitude of the location to use in the weather api
 function findLocation(location){
-    var geoReq = "http://api.openweathermap.org/geo/1.0/direct?q=" + location + "&appid=9c26d768ead86b39036caf98fb0abbfa";
+    var geoReq = "https://api.openweathermap.org/geo/1.0/direct?q=" + location + "&appid=9c26d768ead86b39036caf98fb0abbfa";
 
     fetch(geoReq).then(function(response){
         if(response.ok){
